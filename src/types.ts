@@ -1,9 +1,3 @@
-export interface Table {
-    name: string;
-    foreignKeys: string[];
-}
+export type StringArrMap = { [key: string]: string[] };
 
-export interface DependencyGraph {
-    topologicallySortedTableNames: string[];
-    tables: Table[];
-}
+export type QueryData = { "data": StringArrMap };

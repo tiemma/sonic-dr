@@ -1,1 +1,1 @@
-export * from "./Database";
+export * from "./Postgres";
