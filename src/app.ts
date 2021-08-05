@@ -1,12 +1,60 @@
 import {Postgres} from "./models";
-import {convertIntoGraphAndSort} from "./graph/parse";
+import {convertIntoGraphAndSort, generateRestorePath, getIndependentNodes} from "./graph/parse";
 import {exec} from "child_process"
 import config from "../config.json";
 import {Options} from "sequelize";
 import {mkdirSync, existsSync} from "fs";
+import {Result, Scheduler} from "./types";
+import {Queue} from "@tiemma/sonic-core";
 
-(async () => {
-    const foreignKeyRelationships = await Postgres.init(config as Options).getPostgresDBMetadata()
+
+const psInstance = Postgres.init(config as Options)
+
+const postgresRestore = async () => {
+    const postgresDBMetadata = require(`${process.cwd()}/metadata.json`)
+    const indegreeeMap = await psInstance.getPostgresInDegreeMap()
+    for (const node of Object.keys(postgresDBMetadata)) {
+        postgresDBMetadata[node] = new Set(postgresDBMetadata[node])
+        if (indegreeeMap[node]) {
+            indegreeeMap[node] = new Set(indegreeeMap[node])
+        }
+    }
+
+    const queue = getIndependentNodes(postgresDBMetadata)
+    if (queue.isEmpty()) {
+        throw "Cyclic dependency list"
+    }
+
+    const scheduler: Scheduler = {
+        processNow: queue,
+        processLater: new Queue(),
+    }
+
+    const results: Result = {}
+    while (!queue.isEmpty()) {
+        const node = queue.dequeue()
+        for (const end of Object.keys(postgresDBMetadata)) {
+            if (node != end) {
+                for (const data of generateRestorePath(node, end, indegreeeMap)) {
+                    if(!results[end]){
+                        results[end] = [];
+                    }
+                    data.pop()
+                    results[end].push(data)
+                }
+            }
+        }
+
+    }
+
+    console.log(results)
+
+}
+
+
+const postgresBackup = async () => {
+    const foreignKeyRelationships = await psInstance.getPostgresDBMetadata()
+    require("fs").writeFileSync("./metadata.json", JSON.stringify(foreignKeyRelationships, null, "\t"))
     const queue = convertIntoGraphAndSort(foreignKeyRelationships);
 
     const backupDir = `${process.cwd()}/backup`
@@ -14,7 +62,7 @@ import {mkdirSync, existsSync} from "fs";
         mkdirSync(backupDir);
     }
 
-    while(!queue.isEmpty()){
+    while (!queue.isEmpty()) {
         const table = queue.dequeue();
 
         console.log(`Processing ${table}`)
@@ -43,7 +91,7 @@ import {mkdirSync, existsSync} from "fs";
                     return;
                 }
 
-                if(stderr) {
+                if (stderr) {
                     console.error(`stderr: ${stderr}`);
                     reject()
                 }
@@ -53,4 +101,6 @@ import {mkdirSync, existsSync} from "fs";
         })
 
     }
-})()
+}
+
+(async () => await postgresRestore())();

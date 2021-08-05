@@ -24,6 +24,26 @@ export class Postgres {
         return data
     }
 
+    static getPostgresInDegreeMap(): Promise<StringArrMap> {
+        const indegreeQuery = `
+            SELECT JSONB_OBJECT_AGG(name, "foreignKeyTables") || '{}'::JSONB AS data
+            FROM (
+                SELECT
+                    ccu.table_name AS name,
+                    ARRAY_TO_JSON(COALESCE(ARRAY_AGG(DISTINCT t.table_name) FILTER (WHERE ccu.table_name != tc.table_name), ARRAY[]::VARCHAR[])) AS "foreignKeyTables"
+                FROM information_schema.tables t
+                    LEFT JOIN information_schema.table_constraints tc ON tc.table_name = t.table_name
+                    LEFT JOIN information_schema.constraint_column_usage AS ccu
+                      ON ccu.constraint_name = tc.constraint_name
+                      AND ccu.table_schema = tc.table_schema
+                WHERE tc.table_schema='public' AND ccu.table_name != t.table_name
+                GROUP BY ccu.table_name
+            ) d;
+        `;
+
+        return this.execMapQuery(indegreeQuery);
+    }
+
     static async getPostgresDBMetadata(): Promise<StringArrMap> {
         const postgresTableRelationshipQuery = `
             SELECT JSONB_OBJECT_AGG(name, "foreignKeyTables") || '{}'::JSONB AS data
