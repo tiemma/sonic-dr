@@ -11,6 +11,10 @@ export interface DBMetadataGraph {
 
 export interface MapReduceEvent {
     table: string;
+    // SYN defined on worker start
+    SYN?: boolean
+    ACK?: boolean;
+    SYN_ACK?: boolean
 }
 
 export interface Restore {
