@@ -1,12 +1,19 @@
-import {Queue} from "@tiemma/sonic-core";
+export type StringArrMap = Record<string, Set<string>>;
 
-export type StringArrMap = { [key: string]: Set<string> };
+export type QueryData = Record<"data", StringArrMap>;
 
-export type QueryData = { "data": StringArrMap };
+export type Result = Record<string, string[][]>
 
-export interface Scheduler {
-    processNow: Queue;
-    processLater: Queue;
+export interface DBMetadataGraph {
+    tableDependencies: StringArrMap;
+    inDegreeMap: StringArrMap
 }
 
-export type Result = { [key: string]: string[][] }
+export interface MapReduceEvent {
+    table: string;
+}
+
+export interface Restore {
+    results: Result
+    metadata: DBMetadataGraph
+}

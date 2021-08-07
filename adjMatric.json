@@ -1,0 +1,234 @@
+{
+	"metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"gpu_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"gpu"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		]
+	],
+	"pod_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		]
+	],
+	"pvc_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pvc"
+		],
+		[
+			"organization",
+			"cluster",
+			"pv",
+			"pvc"
+		]
+	],
+	"disk_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"node"
+		]
+	],
+	"node_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"node"
+		]
+	],
+	"container_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		]
+	],
+	"organization_feature_flag": [
+		[
+			"feature_flag"
+		],
+		[
+			"organization"
+		]
+	],
+	"pv": [
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"gpu": [
+		[
+			"organization",
+			"cluster",
+			"node"
+		]
+	],
+	"pod": [
+		[
+			"organization",
+			"cluster",
+			"namespace"
+		],
+		[
+			"organization",
+			"cluster",
+			"node"
+		]
+	],
+	"pvc": [
+		[
+			"organization",
+			"cluster",
+			"namespace"
+		],
+		[
+			"organization",
+			"cluster",
+			"pv"
+		]
+	],
+	"node": [
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"role": [
+		[
+			"organization"
+		]
+	],
+	"team": [
+		[
+			"organization"
+		]
+	],
+	"user": [
+		[
+			"organization"
+		]
+	],
+	"api_key": [
+		[
+			"organization"
+		]
+	],
+	"cluster": [
+		[
+			"organization"
+		]
+	],
+	"pod_pvc": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pvc"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"pv",
+			"pvc"
+		]
+	],
+	"webhook": [
+		[
+			"organization"
+		]
+	],
+	"namespace": [
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"user_role": [
+		[
+			"organization",
+			"role"
+		],
+		[
+			"organization",
+			"user"
+		]
+	],
+	"team_label": [
+		[
+			"organization",
+			"team"
+		]
+	]
+}
