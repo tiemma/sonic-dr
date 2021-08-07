@@ -41,18 +41,9 @@ let loggerID = "UNSET"
 
 const logger = (message: any, date = new Date().toISOString()) => console.log(`${date}: ${loggerID}: ${message}`)
 
-const logAllEmitterEvents = (eventEmitter) => {
-    const emitToLog = eventEmitter.emit;
-
-    eventEmitter.emit = function () {
-        logger(`event emitted: ${arguments[0]} with args ${JSON.stringify(arguments)}`);
-        emitToLog.apply(eventEmitter, arguments);
-    }
-}
-
 const readBackup = (table: string) => readFileSync(`${process.cwd()}/backup/${table}.sql`).toString()
 
-const Delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 15000))
+const Delay = (time = 5000) => new Promise(resolve => setTimeout(resolve, time))
 
 const GetCount = (metadata: DBMetadataGraph, table: string) => {
     return Tables.sequelize.query(`SELECT COUNT(*) AS count FROM tables WHERE name IN (:names) AND isProcessed IS TRUE`,
@@ -65,38 +56,38 @@ const GetCount = (metadata: DBMetadataGraph, table: string) => {
     )
 }
 
+const ensureDependenciesSatisfied = async (metadata: DBMetadataGraph, table: string) => {
+    const dependencySize = metadata.tableDependencies[table].size
+    if (dependencySize > 0) {
+        let filledTables = await GetCount(metadata, table)
+        while (filledTables["count"] != dependencySize) {
+            filledTables = await GetCount(metadata, table)
+        }
+        logger(`Dependencies fulfilled for table ${table}, expected=${dependencySize}, found=${filledTables["count"]}`)
+    }
+}
+
+const getWorkerID = (workerQueue: Queue, workers: NodeJS.Dict<Worker>) => {
+    let workerID = workerQueue.dequeue()
+    while (!workerQueue.isEmpty() && !workers[workerID]) {
+        workerID = workerQueue.dequeue()
+    }
+
+    return workerID
+}
+
 const Map = async (workers: NodeJS.Dict<Worker>, workerQueue: Queue, event: MapReduceEvent, metadata: DBMetadataGraph) => {
     const {table} = event;
 
     if (await IsProcessed(table)) {
-        logger(`Table entry ${table} already processed`)
-
         return
     }
 
-    while (workerQueue.isEmpty()) {
+    await ensureDependenciesSatisfied(metadata, table)
 
-    }
-
-    logger(`Processing ${table}: ${JSON.stringify(event)}`)
-
-    if (metadata.tableDependencies[table].size > 0) {
-        let filledTables = await GetCount(metadata, table)
-        while (filledTables["count"] != metadata.tableDependencies[table].size) {
-            filledTables = await GetCount(metadata, table)
-        }
-    }
-
-    let workerID = workerQueue.dequeue()
-    while (!workerQueue.isEmpty() && !workers[workerID]) {
-        logger(`Defunct worker: ${workerID}`)
-        workerID = workerQueue.dequeue()
-    }
-
-    if (workers[workerID]) {
-        logger(`Sending event ${JSON.stringify(event)} to worker ${workerID}`)
-        workers[workerID].send(event)
-    }
+    const workerID = getWorkerID(workerQueue, workers)
+    logger(`Sending event ${JSON.stringify(event)} to worker ${workerID}`)
+    workers[workerID].send(event)
 }
 
 const IsProcessed = async (table: string) => {
@@ -107,12 +98,6 @@ const IsProcessed = async (table: string) => {
         await Tables.create({name: table, isProcessed: false});
         return false
     }
-
-    logger(`Blocking on ${table}`)
-    while ((await Tables.count({where: {name: table, isProcessed: false}})) != 0) {
-        await Delay()
-    }
-    logger(`Unblocked ${table}`)
 
     return true
 }
@@ -142,12 +127,7 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
         for (let i = 0; i < numCPUs; i++) {
             const worker = cluster.fork()
 
-            if (worker.isConnected()) {
-                logger(`Worker #${worker.id} is connected`)
-            }
-
             worker.on(clusterEvents.ONLINE, () => {
-                logger(`Worker is online`)
                 workerQueue.enqueue(worker.id)
             })
 
@@ -155,6 +135,7 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
                 if (message["table"]) {
                     processOrder.enqueue(message["table"])
                 }
+                logger(`Worker ${message.id} now available`)
                 workerQueue.enqueue(message.id)
             })
 
@@ -165,11 +146,9 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
 
         logger("Worker queues initializing")
         while (workerQueue.getElements().length != numCPUs) {
-            await Delay()
+            await Delay(10000)
         }
         logger(`Workers queue populated`)
-
-        await Delay()
 
         for (const [root, dependencies] of Object.entries(adjMatrix)) {
             let max = 0
@@ -184,16 +163,21 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
                     }
                 }
             }
-            await Map(cluster.workers, workerQueue, {table: root}, metadata)
+            Map(cluster.workers, workerQueue, {table: root}, metadata)
         }
 
         logger(processOrder.getElements())
 
         for (let i = 0; i < numCPUs; i++) {
-            cluster.workers[i].disconnect()
+            if (cluster.workers[i]) {
+                await Delay(100)
+                cluster.workers[i].disconnect()
+            }
         }
 
         logger(`Shutting down master`)
+
+        process.exit(0)
     } else if (cluster.isWorker) {
         loggerID = `WORKER-${cluster.worker.id}`
 
@@ -203,7 +187,7 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
             logger(`Processing table ${table}`)
 
             const dbInstance = getDBInstance(config)
-            dbInstance.sequelize.query(readBackup(table), {
+            dbInstance.sequelize.query(`DROP TABLE IF EXISTS "${table}" CASCADE;\n` + readBackup(table), {
                 type: QueryTypes.INSERT,
                 benchmark: false,
                 logging: false

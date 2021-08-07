@@ -26,6 +26,9 @@
 		"user": [
 			"organization"
 		],
+		"budget": [
+			"organization"
+		],
 		"metric": [
 			"cluster",
 			"metric_id"
@@ -56,6 +59,10 @@
 			"metric_id",
 			"pod"
 		],
+		"invitation": [
+			"organization",
+			"user"
+		],
 		"pod_metric": [
 			"metric_id",
 			"pod"
@@ -67,6 +74,10 @@
 		"team_label": [
 			"team"
 		],
+		"budget_user": [
+			"budget",
+			"user"
+		],
 		"disk_metric": [
 			"metric_id",
 			"node"
@@ -75,15 +86,150 @@
 			"metric_id",
 			"node"
 		],
+		"team_budget": [
+			"budget",
+			"team"
+		],
+		"team_member": [
+			"team",
+			"user"
+		],
+		"budget_alert": [
+			"budget"
+		],
+		"budget_email": [
+			"budget"
+		],
 		"feature_flag": [],
 		"organization": [],
+		"pod_workload": [
+			"pod"
+		],
+		"team_cluster": [
+			"cluster",
+			"team"
+		],
+		"SequelizeMeta": [],
+		"agent_version": [],
+		"deploy_events": [
+			"namespace"
+		],
+		"metrics_queue": [
+			"cluster"
+		],
+		"webhook_event": [
+			"webhook"
+		],
+		"budget_history": [
+			"budget"
+		],
+		"cluster_budget": [
+			"budget",
+			"cluster"
+		],
+		"team_namespace": [
+			"team"
+		],
+		"team_resources": [
+			"team"
+		],
+		"database_metric": [],
+		"budget_resources": [
+			"budget"
+		],
 		"container_metric": [
 			"metric_id",
 			"pod"
 		],
+		"saml_integration": [
+			"organization"
+		],
+		"custom_pricing_gpu": [
+			"cluster",
+			"organization"
+		],
+		"rollup_invalidated": [
+			"cluster"
+		],
+		"billing_integration": [
+			"organization"
+		],
+		"custom_pricing_node": [
+			"cluster",
+			"organization"
+		],
+		"budget_alert_history": [
+			"budget"
+		],
+		"payment_subscription": [
+			"organization"
+		],
+		"rollup_1d_gpu_metric": [
+			"cluster",
+			"gpu",
+			"pod"
+		],
+		"rollup_1d_pod_metric": [
+			"cluster",
+			"pod"
+		],
+		"rollup_1d_pvc_metric": [
+			"cluster",
+			"pvc"
+		],
+		"rollup_1h_gpu_metric": [
+			"cluster",
+			"gpu",
+			"pod"
+		],
+		"rollup_1h_pod_metric": [
+			"cluster",
+			"pod"
+		],
+		"rollup_1h_pvc_metric": [
+			"cluster",
+			"pvc"
+		],
+		"rollup_1d_disk_metric": [
+			"cluster",
+			"node"
+		],
+		"rollup_1d_node_metric": [
+			"cluster",
+			"node"
+		],
+		"rollup_1h_disk_metric": [
+			"cluster",
+			"node"
+		],
+		"rollup_1h_node_metric": [
+			"cluster",
+			"node"
+		],
 		"organization_feature_flag": [
 			"feature_flag",
 			"organization"
+		],
+		"rollup_1d_container_metric": [
+			"cluster",
+			"pod"
+		],
+		"rollup_1h_container_metric": [
+			"cluster",
+			"pod"
+		],
+		"cluster_billing_integration": [
+			"billing_integration",
+			"cluster"
+		],
+		"payment_subscription_invoices": [
+			"organization"
+		],
+		"rollup_1d_control_plane_metric": [
+			"cluster"
+		],
+		"rollup_1h_control_plane_metric": [
+			"cluster"
 		]
 	},
 	"inDegreeMap": {
@@ -91,38 +237,95 @@
 			"pvc"
 		],
 		"gpu": [
-			"gpu_metric"
+			"gpu_metric",
+			"rollup_1d_gpu_metric",
+			"rollup_1h_gpu_metric"
 		],
 		"pod": [
 			"container_metric",
 			"gpu_metric",
 			"pod_metric",
-			"pod_pvc"
+			"pod_pvc",
+			"pod_workload",
+			"rollup_1d_container_metric",
+			"rollup_1d_gpu_metric",
+			"rollup_1d_pod_metric",
+			"rollup_1h_container_metric",
+			"rollup_1h_gpu_metric",
+			"rollup_1h_pod_metric"
 		],
 		"pvc": [
 			"pod_pvc",
-			"pvc_metric"
+			"pvc_metric",
+			"rollup_1d_pvc_metric",
+			"rollup_1h_pvc_metric"
 		],
 		"node": [
 			"disk_metric",
 			"gpu",
 			"node_metric",
-			"pod"
+			"pod",
+			"rollup_1d_disk_metric",
+			"rollup_1d_node_metric",
+			"rollup_1h_disk_metric",
+			"rollup_1h_node_metric"
 		],
 		"role": [
 			"user_role"
 		],
 		"team": [
-			"team_label"
+			"team_budget",
+			"team_cluster",
+			"team_label",
+			"team_member",
+			"team_namespace",
+			"team_resources"
 		],
 		"user": [
+			"budget_user",
+			"invitation",
+			"team_member",
 			"user_role"
 		],
+		"budget": [
+			"budget_alert",
+			"budget_alert_history",
+			"budget_email",
+			"budget_history",
+			"budget_resources",
+			"budget_user",
+			"cluster_budget",
+			"team_budget"
+		],
 		"cluster": [
+			"cluster_billing_integration",
+			"cluster_budget",
+			"custom_pricing_gpu",
+			"custom_pricing_node",
 			"metric",
+			"metrics_queue",
 			"namespace",
 			"node",
-			"pv"
+			"pv",
+			"rollup_1d_container_metric",
+			"rollup_1d_control_plane_metric",
+			"rollup_1d_disk_metric",
+			"rollup_1d_gpu_metric",
+			"rollup_1d_node_metric",
+			"rollup_1d_pod_metric",
+			"rollup_1d_pvc_metric",
+			"rollup_1h_container_metric",
+			"rollup_1h_control_plane_metric",
+			"rollup_1h_disk_metric",
+			"rollup_1h_gpu_metric",
+			"rollup_1h_node_metric",
+			"rollup_1h_pod_metric",
+			"rollup_1h_pvc_metric",
+			"rollup_invalidated",
+			"team_cluster"
+		],
+		"webhook": [
+			"webhook_event"
 		],
 		"metric_id": [
 			"container_metric",
@@ -134,6 +337,7 @@
 			"pvc_metric"
 		],
 		"namespace": [
+			"deploy_events",
 			"pod",
 			"pvc"
 		],
@@ -142,12 +346,23 @@
 		],
 		"organization": [
 			"api_key",
+			"billing_integration",
+			"budget",
 			"cluster",
+			"custom_pricing_gpu",
+			"custom_pricing_node",
+			"invitation",
 			"organization_feature_flag",
+			"payment_subscription",
+			"payment_subscription_invoices",
 			"role",
+			"saml_integration",
 			"team",
 			"user",
 			"webhook"
+		],
+		"billing_integration": [
+			"cluster_billing_integration"
 		]
 	}
 }

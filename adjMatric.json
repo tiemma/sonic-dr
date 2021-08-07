@@ -168,6 +168,11 @@
 			"organization"
 		]
 	],
+	"budget": [
+		[
+			"organization"
+		]
+	],
 	"api_key": [
 		[
 			"organization"
@@ -225,10 +230,410 @@
 			"user"
 		]
 	],
+	"invitation": [
+		[
+			"organization"
+		],
+		[
+			"organization",
+			"user"
+		]
+	],
 	"team_label": [
 		[
 			"organization",
 			"team"
+		]
+	],
+	"budget_user": [
+		[
+			"organization",
+			"budget"
+		],
+		[
+			"organization",
+			"user"
+		]
+	],
+	"team_budget": [
+		[
+			"organization",
+			"budget"
+		],
+		[
+			"organization",
+			"team"
+		]
+	],
+	"team_member": [
+		[
+			"organization",
+			"team"
+		],
+		[
+			"organization",
+			"user"
+		]
+	],
+	"budget_alert": [
+		[
+			"organization",
+			"budget"
+		]
+	],
+	"budget_email": [
+		[
+			"organization",
+			"budget"
+		]
+	],
+	"pod_workload": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		]
+	],
+	"team_cluster": [
+		[
+			"organization",
+			"cluster"
+		],
+		[
+			"organization",
+			"team"
+		]
+	],
+	"deploy_events": [
+		[
+			"organization",
+			"cluster",
+			"namespace"
+		]
+	],
+	"metrics_queue": [
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"webhook_event": [
+		[
+			"organization",
+			"webhook"
+		]
+	],
+	"budget_history": [
+		[
+			"organization",
+			"budget"
+		]
+	],
+	"cluster_budget": [
+		[
+			"organization",
+			"budget"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"team_namespace": [
+		[
+			"organization",
+			"team"
+		]
+	],
+	"team_resources": [
+		[
+			"organization",
+			"team"
+		]
+	],
+	"budget_resources": [
+		[
+			"organization",
+			"budget"
+		]
+	],
+	"saml_integration": [
+		[
+			"organization"
+		]
+	],
+	"custom_pricing_gpu": [
+		[
+			"organization",
+			"cluster"
+		],
+		[
+			"organization"
+		]
+	],
+	"rollup_invalidated": [
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"billing_integration": [
+		[
+			"organization"
+		]
+	],
+	"custom_pricing_node": [
+		[
+			"organization",
+			"cluster"
+		],
+		[
+			"organization"
+		]
+	],
+	"budget_alert_history": [
+		[
+			"organization",
+			"budget"
+		]
+	],
+	"payment_subscription": [
+		[
+			"organization"
+		]
+	],
+	"rollup_1d_gpu_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"gpu"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1d_pod_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1d_pvc_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pvc"
+		],
+		[
+			"organization",
+			"cluster",
+			"pv",
+			"pvc"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1h_gpu_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"gpu"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1h_pod_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1h_pvc_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pvc"
+		],
+		[
+			"organization",
+			"cluster",
+			"pv",
+			"pvc"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1d_disk_metric": [
+		[
+			"organization",
+			"cluster",
+			"node"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1d_node_metric": [
+		[
+			"organization",
+			"cluster",
+			"node"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1h_disk_metric": [
+		[
+			"organization",
+			"cluster",
+			"node"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1h_node_metric": [
+		[
+			"organization",
+			"cluster",
+			"node"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1d_container_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1h_container_metric": [
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"cluster_billing_integration": [
+		[
+			"organization",
+			"billing_integration"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"payment_subscription_invoices": [
+		[
+			"organization"
+		]
+	],
+	"rollup_1d_control_plane_metric": [
+		[
+			"organization",
+			"cluster"
+		]
+	],
+	"rollup_1h_control_plane_metric": [
+		[
+			"organization",
+			"cluster"
 		]
 	]
 }
