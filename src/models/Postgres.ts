@@ -20,7 +20,7 @@ export class Postgres extends AbstractModel{
                 -d ${config.database}  \
                 -U ${config.username} \
                 -f "${backupDir}/${table}.sql" \
-                -t ${table} \
+                -t "${table}" \
                 -O \
                 -x  \
                 -c \

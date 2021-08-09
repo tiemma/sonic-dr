@@ -1,115 +1,5 @@
 {
-	"metric": [
-		[
-			"metric_id"
-		],
-		[
-			"organization",
-			"cluster"
-		]
-	],
-	"gpu_metric": [
-		[
-			"metric_id"
-		],
-		[
-			"organization",
-			"cluster",
-			"namespace",
-			"pod"
-		],
-		[
-			"organization",
-			"cluster",
-			"node",
-			"gpu"
-		],
-		[
-			"organization",
-			"cluster",
-			"node",
-			"pod"
-		]
-	],
-	"pod_metric": [
-		[
-			"metric_id"
-		],
-		[
-			"organization",
-			"cluster",
-			"namespace",
-			"pod"
-		],
-		[
-			"organization",
-			"cluster",
-			"node",
-			"pod"
-		]
-	],
-	"pvc_metric": [
-		[
-			"metric_id"
-		],
-		[
-			"organization",
-			"cluster",
-			"namespace",
-			"pvc"
-		],
-		[
-			"organization",
-			"cluster",
-			"pv",
-			"pvc"
-		]
-	],
-	"disk_metric": [
-		[
-			"metric_id"
-		],
-		[
-			"organization",
-			"cluster",
-			"node"
-		]
-	],
-	"node_metric": [
-		[
-			"metric_id"
-		],
-		[
-			"organization",
-			"cluster",
-			"node"
-		]
-	],
-	"container_metric": [
-		[
-			"metric_id"
-		],
-		[
-			"organization",
-			"cluster",
-			"namespace",
-			"pod"
-		],
-		[
-			"organization",
-			"cluster",
-			"node",
-			"pod"
-		]
-	],
-	"organization_feature_flag": [
-		[
-			"feature_flag"
-		],
-		[
-			"organization"
-		]
-	],
+	"metric_id": [],
 	"pv": [
 		[
 			"organization",
@@ -173,6 +63,15 @@
 			"organization"
 		]
 	],
+	"metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster"
+		]
+	],
 	"api_key": [
 		[
 			"organization"
@@ -230,6 +129,29 @@
 			"user"
 		]
 	],
+	"gpu_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"gpu"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		]
+	],
 	"invitation": [
 		[
 			"organization"
@@ -237,6 +159,40 @@
 		[
 			"organization",
 			"user"
+		]
+	],
+	"pod_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
+		]
+	],
+	"pvc_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pvc"
+		],
+		[
+			"organization",
+			"cluster",
+			"pv",
+			"pvc"
 		]
 	],
 	"team_label": [
@@ -253,6 +209,26 @@
 		[
 			"organization",
 			"user"
+		]
+	],
+	"disk_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"node"
+		]
+	],
+	"node_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"node"
 		]
 	],
 	"team_budget": [
@@ -287,6 +263,8 @@
 			"budget"
 		]
 	],
+	"feature_flag": [],
+	"organization": [],
 	"pod_workload": [
 		[
 			"organization",
@@ -311,6 +289,8 @@
 			"team"
 		]
 	],
+	"SequelizeMeta": [],
+	"agent_version": [],
 	"deploy_events": [
 		[
 			"organization",
@@ -358,10 +338,28 @@
 			"team"
 		]
 	],
+	"database_metric": [],
 	"budget_resources": [
 		[
 			"organization",
 			"budget"
+		]
+	],
+	"container_metric": [
+		[
+			"metric_id"
+		],
+		[
+			"organization",
+			"cluster",
+			"namespace",
+			"pod"
+		],
+		[
+			"organization",
+			"cluster",
+			"node",
+			"pod"
 		]
 	],
 	"saml_integration": [
@@ -571,6 +569,14 @@
 		[
 			"organization",
 			"cluster"
+		]
+	],
+	"organization_feature_flag": [
+		[
+			"feature_flag"
+		],
+		[
+			"organization"
 		]
 	],
 	"rollup_1d_container_metric": [

@@ -19,6 +19,7 @@ import {
 } from "./utils";
 import {Delay, getLogger, readBackup} from "../utils";
 
+const logger = getLogger(getLoggerID());
 
 const Map = async (workerQueue: Queue, event: MapReduceEvent) => {
     if (await isProcessed(event.table)) {
@@ -27,7 +28,7 @@ const Map = async (workerQueue: Queue, event: MapReduceEvent) => {
 
     const workerID = await getWorkerID(workerQueue)
 
-    getLogger(getLoggerID())(`Sending event ${JSON.stringify(event)} to worker ${workerID}`)
+    logger(`Sending event ${JSON.stringify(event)} to worker ${workerID}`)
 
     cluster.workers[workerID].send(event)
 }
@@ -42,14 +43,14 @@ const configureWorkers = async (numWorkers: number) => {
         worker.on(clusterEvents.MESSAGE, (message: MapReduceEvent) => {
             const {id, table, SYN, SYN_ACK} = message;
 
-            getLogger(getLoggerID())(`Received events from worker: ${JSON.stringify(message)}`)
+            logger(`Received events from worker: ${JSON.stringify(message)}`)
 
             if (SYN) {
                 // Return signal to worker to start processing
                 worker.send({ACK: true})
             } else if (SYN_ACK || id) {
                 workerQueue.enqueue(worker.id)
-                getLogger(getLoggerID())(`Worker ${worker.id} now available`)
+                logger(`Worker ${worker.id} now available`)
             }
 
             if (table) {
@@ -59,15 +60,15 @@ const configureWorkers = async (numWorkers: number) => {
         })
 
         worker.on(clusterEvents.DISCONNECT, () => {
-            getLogger(getLoggerID())(`Gracefully shutting down worker #${worker.id}`)
+            logger(`Gracefully shutting down worker #${worker.id}`)
         })
     }
 
-    getLogger(getLoggerID())("Worker queues initializing")
+    logger("Worker queues initializing")
     while (workerQueue.getElements().length != numWorkers) {
         await Delay()
     }
-    getLogger(getLoggerID())(`Workers queue populated`)
+    logger(`Workers queue populated`)
 
     return {workerQueue, processOrder}
 }
@@ -76,8 +77,8 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
     if (isMaster()) {
         await initMaster(adjMatrix)
 
-        getLogger(getLoggerID())("Running Map reduce");
-        getLogger(getLoggerID())(`Process running on pid ${pid}`);
+        logger("Running Map reduce");
+        logger(`Process running on pid ${pid}`);
 
         const {workerQueue, processOrder} = await configureWorkers(numWorkers)
 
@@ -102,7 +103,7 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
 
         process.on(clusterEvents.MESSAGE, async (event: MapReduceEvent) => {
             if (event.ACK) {
-                getLogger(getLoggerID())(`Worker ${cluster.worker.id} now active and processing requests`)
+                logger(`Worker ${cluster.worker.id} now active and processing requests`)
 
                 process.send({SYN_ACK: true})
                 return
@@ -111,7 +112,7 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
             const data = {id: cluster.worker.id, table: event.table, workerName}
             const dbInstance = getDBInstance(config)
 
-            getLogger(workerName)(`Processing table ${event.table}`)
+            logger(`Processing table ${event.table}`)
 
             try {
                 await ensureDependenciesSatisfied(metadata, event.table)
@@ -122,11 +123,11 @@ export const MapReduce = async (metadata: DBMetadataGraph, adjMatrix: Result, co
                 })
                 await Tables.update({isProcessed: true}, {where: {name: event.table, isProcessed: false}})
 
-                getLogger(workerName)(`Writing event ${JSON.stringify(event)} to master`)
+                logger(`Writing event ${JSON.stringify(event)} to master`)
 
                 process.send(data)
             } catch (err) {
-                getLogger(workerName)(`Error processing table ${event.table}: ${err}`)
+                logger(`Error processing table ${event.table}: ${err}`)
             } finally {
                 await dbInstance.sequelize.close()
             }

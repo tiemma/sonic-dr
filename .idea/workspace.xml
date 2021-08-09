@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="5c79dc99-3ed5-430b-a4e5-db9635170e72" name="Default Changelist" comment="" />
+    <list default="true" id="5c79dc99-3ed5-430b-a4e5-db9635170e72" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adjMatric.json" beforeDir="false" afterPath="$PROJECT_DIR$/adjMatric.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graph/parse.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graph/parse.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/map_reduce/cluster.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/map_reduce/cluster.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/Postgres.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/Postgres.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/strategy/restore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/strategy/restore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,7 +26,11 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1wGWhOkTkCoSny2mq5cXRv0E1OB" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -22,7 +38,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../sonic-core" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../swagger-doc-frontend" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -33,6 +49,12 @@
     <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/src/pipeline" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -41,7 +63,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1628085523335</updated>
-      <workItem from="1628085524447" duration="25017000" />
+      <workItem from="1628085524447" duration="131547000" />
+      <workItem from="1628504300875" duration="6414000" />
     </task>
     <servers />
   </component>
@@ -49,18 +72,22 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="657" y="337" width="596" height="404" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1628086958759">
+    <state x="657" y="337" width="595" height="402" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1628357130093">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="657" y="337" width="596" height="404" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1628086958759" />
-    <state x="693" y="287" width="524" height="503" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1628092750381">
+    <state x="657" y="337" width="595" height="402" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1628357130093" />
+    <state x="768" y="259" width="374" height="560" key="#com.intellij.ide.util.MemberChooser" timestamp="1628269689793">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="693" y="287" width="524" height="503" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1628092750381" />
-    <state x="743" y="298" width="424" height="482" key="FileChooserDialogImpl" timestamp="1628105641460">
+    <state x="768" y="259" width="374" height="560" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1628269689793" />
+    <state x="693" y="287" width="524" height="503" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1628292575528">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="743" y="298" width="424" height="482" key="FileChooserDialogImpl/0.0.1920.1080@0.0.1920.1080" timestamp="1628105641460" />
+    <state x="693" y="287" width="524" height="503" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1628292575528" />
+    <state x="743" y="298" width="424" height="482" key="FileChooserDialogImpl" timestamp="1628284909923">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="743" y="298" width="424" height="482" key="FileChooserDialogImpl/0.0.1920.1080@0.0.1920.1080" timestamp="1628284909923" />
     <state width="1879" height="280" key="GridCell.Tab.0.bottom" timestamp="1628108262362">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
@@ -77,5 +104,13 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1879" height="280" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1628108262362" />
+    <state x="652" y="249" width="615" height="582" key="find.popup" timestamp="1628473322700">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="652" y="249" width="615" height="582" key="find.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1628473322700" />
+    <state x="623" y="243" width="672" height="678" key="search.everywhere.popup" timestamp="1628334737358">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="623" y="243" width="672" height="678" key="search.everywhere.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1628334737358" />
   </component>
 </project>

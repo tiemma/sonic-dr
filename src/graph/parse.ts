@@ -30,7 +30,9 @@ export const generateRestorePath = (start: string, end: string, graph: StringArr
 
     const getAllPaths = (currNode: string, pathList: string[]) => {
         if (currNode === end) {
-            result.push(Array.from(pathList))
+            const paths = Array.from(pathList)
+            paths.pop()
+            result.push(paths)
         }
         if (graph[currNode]) {
             for (const node of graph[currNode]) {

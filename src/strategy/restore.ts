@@ -4,7 +4,8 @@ import {Restore, Result} from "../types";
 
 export const restore = (): Restore => {
     const {tableDependencies, inDegreeMap} = metadata
-    for (const node of Object.keys(tableDependencies)) {
+    const dependencies = Object.keys(tableDependencies)
+    for (const node of dependencies) {
         tableDependencies[node] = new Set(tableDependencies[node])
         if (inDegreeMap[node]) {
             inDegreeMap[node] = new Set(inDegreeMap[node])
@@ -19,13 +20,15 @@ export const restore = (): Restore => {
     const results: Result = {}
     while (!queue.isEmpty()) {
         const node = queue.dequeue()
-        for (const end of Object.keys(tableDependencies)) {
+        if (!results[node]) {
+            results[node] = [];
+        }
+        for (const end of dependencies) {
+            if (!results[end]) {
+                results[end] = [];
+            }
             if (node != end) {
                 for (const data of generateRestorePath(node, end, inDegreeMap as any)) {
-                    if (!results[end]) {
-                        results[end] = [];
-                    }
-                    data.pop()
                     results[end].push(data)
                 }
             }
