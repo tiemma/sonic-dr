@@ -39,7 +39,7 @@ const configureWorkers = async (numWorkers: number) => {
     for (let i = 0; i < numWorkers; i++) {
         const worker = cluster.fork()
 
-        worker.on(clusterEvents.MESSAGE, (message: Record<string, number | string>) => {
+        worker.on(clusterEvents.MESSAGE, (message: MapReduceEvent) => {
             const {id, table, SYN, SYN_ACK} = message;
 
             getLogger(getLoggerID())(`Received events from worker: ${JSON.stringify(message)}`)

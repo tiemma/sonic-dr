@@ -10,6 +10,7 @@ export interface DBMetadataGraph {
 }
 
 export interface MapReduceEvent {
+    id?: number;
     table: string;
     // SYN defined on worker start
     SYN?: boolean
