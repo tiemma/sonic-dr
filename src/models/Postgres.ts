@@ -1,25 +1,20 @@
-import {QueryData, StringArrMap} from "../types";
-import {Options, QueryTypes, Sequelize} from "sequelize";
-import {existsSync, mkdirSync} from "fs";
-import {AbstractModel} from "./AbstractModel";
+import { Options, QueryTypes, Sequelize } from "sequelize";
+import { QueryData, StringArrMap } from "../types";
+import { backupFilesDir } from "../strategy/utils";
+import { AbstractModel } from "./AbstractModel";
 
 (<any>Sequelize).postgres.DECIMAL.parse = parseFloat;
 require("pg").defaults.parseInt8 = true;
 
-export class Postgres extends AbstractModel{
-    getBackupCommand(config: Options, table: string): string {
-        const backupDir = `${process.cwd()}/backup`
-        if (!existsSync(backupDir)) {
-            mkdirSync(backupDir);
-        }
-
-        return ` 
+export class Postgres extends AbstractModel {
+  getBackupCommand(config: Options, table: string): string {
+    return ` 
             PGPASSWORD=${config.password} \
             pg_dump \
                 -h ${config.host} \
                 -d ${config.database}  \
                 -U ${config.username} \
-                -f "${backupDir}/${table}.sql" \
+                -f "${backupFilesDir}/${table}.sql" \
                 -t "${table}" \
                 -O \
                 -x  \
@@ -35,22 +30,11 @@ export class Postgres extends AbstractModel{
                 --no-synchronized-snapshots \
                 --no-unlogged-table-data \
                 --quote-all-identifiers 
-          `
-    }
+          `;
+  }
 
-    async execMapQuery(query, bind = []): Promise<StringArrMap> {
-        const {data} = await this.sequelize.query<QueryData>(query, {
-            type: QueryTypes.SELECT,
-            benchmark: true,
-            plain: true,
-            bind
-        });
-
-        return data
-    }
-
-    getPostgresInDegreeMap(): Promise<StringArrMap> {
-        const indegreeQuery = `
+  getPostgresInDegreeMap(): Promise<StringArrMap> {
+    const indegreeQuery = `
             SELECT JSONB_OBJECT_AGG(name, "foreignKeyTables") || '{}'::JSONB AS data
             FROM (
                 SELECT
@@ -66,11 +50,11 @@ export class Postgres extends AbstractModel{
             ) d;
         `;
 
-        return this.execMapQuery(indegreeQuery);
-    }
+    return this.execMapQuery(indegreeQuery);
+  }
 
-    async getPostgresDBMetadata(): Promise<StringArrMap> {
-        const postgresTableRelationshipQuery = `
+  async getPostgresDBMetadata(): Promise<StringArrMap> {
+    const postgresTableRelationshipQuery = `
             SELECT JSONB_OBJECT_AGG(name, "foreignKeyTables") || '{}'::JSONB AS data
             FROM (
                 SELECT 
@@ -86,6 +70,6 @@ export class Postgres extends AbstractModel{
             ) d;
         `;
 
-        return this.execMapQuery(postgresTableRelationshipQuery)
-    }
+    return this.execMapQuery(postgresTableRelationshipQuery);
+  }
 }

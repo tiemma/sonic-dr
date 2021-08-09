@@ -1,20 +1,29 @@
-import {Options, Sequelize} from "sequelize";
-import {StringArrMap} from "../types";
+import { Options, QueryTypes, Sequelize } from "sequelize";
+import { QueryData, StringArrMap } from "../types";
 
 export abstract class AbstractModel {
-    sequelize: Sequelize;
+  sequelize: Sequelize;
 
-    constructor(config: Options) {
-        this.sequelize = new Sequelize(config)
+  constructor(config: Options) {
+    this.sequelize = new Sequelize(config);
 
-        return this;
-    }
+    return this;
+  }
 
-    abstract getBackupCommand(config: Options, table: string): string
+  async execMapQuery(query, bind = []): Promise<StringArrMap> {
+    const { data } = await this.sequelize.query<QueryData>(query, {
+      type: QueryTypes.SELECT,
+      benchmark: true,
+      plain: true,
+      bind,
+    });
 
-    abstract execMapQuery(query, bind: string[]): Promise<StringArrMap>
+    return data;
+  }
 
-    abstract getPostgresInDegreeMap(): Promise<StringArrMap>
+  abstract getBackupCommand(config: Options, table: string): string;
 
-    abstract getPostgresDBMetadata(): Promise<StringArrMap>
+  abstract getPostgresInDegreeMap(): Promise<StringArrMap>;
+
+  abstract getPostgresDBMetadata(): Promise<StringArrMap>;
 }
