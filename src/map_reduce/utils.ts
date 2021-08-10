@@ -1,49 +1,16 @@
 import { cpus } from "os";
 import cluster, { ClusterSettings } from "cluster";
-import { rmSync, writeFileSync } from "fs";
-import { DataTypes, Sequelize } from "sequelize";
+import { pid } from "process";
 import { Queue } from "@tiemma/sonic-core";
-import { DBMetadataGraph, Result } from "../types";
 import { Delay, getLogger } from "../utils";
 
 export const NUM_CPUS = cpus().length;
-
-export const clusterEvents = {
-  MESSAGE: "message",
-  DISCONNECT: "disconnect",
-};
-
-export const storageFileName = `${process.cwd()}/db`;
-
-export const sequelize = new Sequelize({
-  dialect: "sqlite",
-  storage: storageFileName,
-  benchmark: false,
-  logging: false,
-});
-
-export const Tables = sequelize.define(
-  "tables",
-  {
-    name: {
-      type: DataTypes.STRING,
-      unique: true,
-      primaryKey: true,
-    },
-    isProcessed: {
-      type: DataTypes.BOOLEAN,
-    },
-  },
-  {
-    timestamps: false,
-  }
-);
 
 export const isMaster = () => {
   return cluster.isMaster || cluster.isPrimary;
 };
 
-export const getLoggerID = () => {
+export const getWorkerName = () => {
   if (isMaster()) {
     return "MASTER";
   }
@@ -51,34 +18,11 @@ export const getLoggerID = () => {
   return `WORKER-${cluster.worker.id}`;
 };
 
-export const getCount = (metadata: DBMetadataGraph, table: string) => {
-  return Tables.sequelize.query(
-    `SELECT COUNT(*) AS count FROM tables WHERE name IN (:names) AND isProcessed IS TRUE`,
-    {
-      replacements: {
-        names: Array.from(metadata.tableDependencies[table]),
-      },
-      plain: true,
-    }
-  );
-};
+const logger = getLogger(getWorkerName());
 
-export const ensureDependenciesSatisfied = async (
-  metadata: DBMetadataGraph,
-  table: string
-) => {
-  const dependencySize = metadata.tableDependencies[table].size;
-  if (dependencySize === 0) {
-    return;
-  }
-
-  let filledTables = await getCount(metadata, table);
-  while (filledTables["count"] !== dependencySize) {
-    filledTables = await getCount(metadata, table);
-  }
-  getLogger(getLoggerID())(
-    `Dependencies fulfilled for table ${table}, expected=${dependencySize}, found=${filledTables["count"]}`
-  );
+export const clusterEvents = {
+  MESSAGE: "message",
+  DISCONNECT: "disconnect",
 };
 
 export const getWorkerID = async (workerQueue: Queue) => {
@@ -94,38 +38,56 @@ export const getWorkerID = async (workerQueue: Queue) => {
   return workerID;
 };
 
-export const isProcessed = async (table: string) => {
-  const count = await Tables.count({ where: { name: table } });
+export interface MapReduceEvent {
+  data: any;
 
-  if (!count) {
-    getLogger(getLoggerID())(`Unprocessed ${table} found`);
-    await Tables.create({ name: table, isProcessed: false });
+  //  Internal, not to be directly used
+  id?: number;
+  SYN?: boolean;
+  ACK?: boolean;
+  SYN_ACK?: boolean;
+}
 
-    return false;
+export const configureWorkers = async (numWorkers: number) => {
+  const workerQueue = new Queue();
+  const processOrder = new Queue();
+
+  for (let i = 0; i < numWorkers; i++) {
+    const worker = cluster.fork();
+
+    worker.on(clusterEvents.MESSAGE, (message: MapReduceEvent) => {
+      const { id, SYN, SYN_ACK, data } = message;
+
+      logger(`Received events from worker: ${JSON.stringify(message)}`);
+
+      if (SYN) {
+        // Return signal to worker to start processing
+        worker.send({ ACK: true });
+      } else if (SYN_ACK || id) {
+        workerQueue.enqueue(worker.id);
+        logger(`Worker ${worker.id} now available`);
+      }
+
+      if (data) {
+        processOrder.enqueue(message);
+      }
+    });
+
+    worker.on(clusterEvents.DISCONNECT, () => {
+      logger(`Gracefully shutting down worker #${worker.id}`);
+    });
   }
 
-  return true;
-};
-
-export const getMaxDependencyCount = (dependencies: string[][]) => {
-  let max = 0;
-  for (const tableSet of dependencies) {
-    max = Math.max(max, tableSet.length);
+  logger("Worker queues initializing");
+  while (workerQueue.getElements().length !== numWorkers) {
+    await Delay();
   }
+  logger(`Workers queue populated`);
 
-  return max;
+  return { workerQueue, processOrder };
 };
 
-export const initMaster = async (adjMatrix: Result) => {
-  writeFileSync(
-    `${process.cwd()}/adjMatric.json`,
-    JSON.stringify(adjMatrix, null, "\t")
-  );
-
-  await sequelize.authenticate({ benchmark: true });
-
-  await Tables.sync({ force: true, logging: true });
-
+export const initMaster = async (args: any) => {
   (cluster.setupMaster || cluster.setupPrimary)({
     execArgv: [
       "-r",
@@ -135,9 +97,43 @@ export const initMaster = async (adjMatrix: Result) => {
       "--async-stack-traces",
     ],
   } as ClusterSettings);
+
+  logger("Running Map reduce");
+  logger(`Process running on pid ${pid}`);
+
+  const { numWorkers = NUM_CPUS } = args;
+
+  return configureWorkers(numWorkers);
 };
 
-export const shutdown = async (processOrder: Queue) => {
+export const initWorkers = async (workerFn: any, args: any) => {
+  const logger = getLogger(getWorkerName());
+
+  // Register worker on startup
+  process.send({ SYN: true });
+
+  process.on(clusterEvents.MESSAGE, async (event) => {
+    // Establish master-node communication with 3-way handshake
+    if (event.ACK) {
+      logger(`Worker ${cluster.worker.id} now active and processing requests`);
+
+      process.send({ SYN_ACK: true });
+
+      return;
+    }
+
+    const data = await workerFn(
+      { ...args, workerID: cluster.worker.id },
+      event.data
+    );
+    const res = { id: cluster.worker.id, data };
+    logger(`Writing event ${JSON.stringify(res)} to master`);
+
+    process.send(res);
+  });
+};
+
+export const shutdown = async () => {
   for (let i = 0; i < NUM_CPUS; i++) {
     if (cluster.workers[i]) {
       await Delay(100);
@@ -145,13 +141,13 @@ export const shutdown = async (processOrder: Queue) => {
     }
   }
 
-  getLogger(getLoggerID())(
-    `Processed ${
-      processOrder.getElements().length
-    } tables in the following order: ${processOrder.getElements()}`
-  );
+  logger(`Shutting down master`);
+};
 
-  rmSync(`${storageFileName}`);
+export const Map = async (workerQueue: Queue, event: MapReduceEvent) => {
+  const workerID = await getWorkerID(workerQueue);
 
-  getLogger(getLoggerID())(`Shutting down master`);
+  logger(`Sending event ${JSON.stringify(event)} to worker ${workerID}`);
+
+  cluster.workers[workerID].send(event);
 };

@@ -9,14 +9,6 @@ export interface DBMetadataGraph {
   inDegreeMap: StringArrMap;
 }
 
-export interface MapReduceEvent {
-  id?: number;
-  table: string;
-  SYN?: boolean;
-  ACK?: boolean;
-  SYN_ACK?: boolean;
-}
-
 export interface Restore {
   results: Result;
   metadata: DBMetadataGraph;

@@ -1,4 +1,4 @@
-import { Options, QueryTypes, Sequelize } from "sequelize";
+import { Options, QueryOptions, QueryTypes, Sequelize } from "sequelize";
 import { QueryData, StringArrMap } from "../types";
 
 export abstract class AbstractModel {
@@ -23,7 +23,9 @@ export abstract class AbstractModel {
 
   abstract getBackupCommand(config: Options, table: string): string;
 
-  abstract getPostgresInDegreeMap(): Promise<StringArrMap>;
+  abstract getDBInDegreeMap(): Promise<StringArrMap>;
 
-  abstract getPostgresDBMetadata(): Promise<StringArrMap>;
+  abstract getDBMetadata(): Promise<StringArrMap>;
+
+  abstract dropTable(table: string, options?: QueryOptions): Promise<void>;
 }

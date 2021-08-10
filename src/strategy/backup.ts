@@ -3,7 +3,6 @@ import { Options } from "sequelize";
 import { DBMetadataGraph } from "../types";
 import { getDBInstance } from "../models";
 import { convertIntoGraphAndSort } from "../graph";
-import config from "../../config.json";
 import { getLogger } from "../utils";
 import { backupDir, backupMetadata } from "./utils";
 
@@ -13,8 +12,8 @@ export const backup = async (config: Options) => {
   const dbInstance = getDBInstance(config);
 
   const [tableDependencies, inDegreeMap] = await Promise.all([
-    dbInstance.getPostgresDBMetadata(),
-    dbInstance.getPostgresInDegreeMap(),
+    dbInstance.getDBMetadata(),
+    dbInstance.getDBInDegreeMap(),
   ]);
   const queue = convertIntoGraphAndSort(tableDependencies);
 
@@ -37,14 +36,14 @@ export const backup = async (config: Options) => {
           }
 
           if (error) {
-            console.error(`exec error: ${error}`);
+            logger(`exec error: ${error}`);
             reject();
 
             return;
           }
 
           if (stderr) {
-            console.error(`stderr: ${stderr}`);
+            logger(`stderr: ${stderr}`);
             reject();
           }
 
@@ -55,4 +54,4 @@ export const backup = async (config: Options) => {
   }
 };
 
-backup(config as Options);
+// backup(config as Options);

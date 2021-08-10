@@ -1,5 +1,5 @@
-import { Options, QueryTypes, Sequelize } from "sequelize";
-import { QueryData, StringArrMap } from "../types";
+import { Options, QueryOptions, Sequelize } from "sequelize";
+import { StringArrMap } from "../types";
 import { backupFilesDir } from "../strategy/utils";
 import { AbstractModel } from "./AbstractModel";
 
@@ -33,13 +33,13 @@ export class Postgres extends AbstractModel {
           `;
   }
 
-  getPostgresInDegreeMap(): Promise<StringArrMap> {
+  getDBInDegreeMap(): Promise<StringArrMap> {
     const indegreeQuery = `
             SELECT JSONB_OBJECT_AGG(name, "foreignKeyTables") || '{}'::JSONB AS data
             FROM (
                 SELECT
                     ccu.table_name AS name,
-                    ARRAY_TO_JSON(COALESCE(ARRAY_AGG(DISTINCT t.table_name) FILTER (WHERE ccu.table_name != tc.table_name), ARRAY[]::VARCHAR[])) AS "foreignKeyTables"
+                    ARRAY_TO_JSON(COALESCE(ARRAY_AGG(DISTINCT t.table_name), ARRAY[]::VARCHAR[])) AS "foreignKeyTables"
                 FROM information_schema.tables t
                     LEFT JOIN information_schema.table_constraints tc ON tc.table_name = t.table_name
                     LEFT JOIN information_schema.constraint_column_usage AS ccu
@@ -53,7 +53,7 @@ export class Postgres extends AbstractModel {
     return this.execMapQuery(indegreeQuery);
   }
 
-  async getPostgresDBMetadata(): Promise<StringArrMap> {
+  async getDBMetadata(): Promise<StringArrMap> {
     const postgresTableRelationshipQuery = `
             SELECT JSONB_OBJECT_AGG(name, "foreignKeyTables") || '{}'::JSONB AS data
             FROM (
@@ -71,5 +71,12 @@ export class Postgres extends AbstractModel {
         `;
 
     return this.execMapQuery(postgresTableRelationshipQuery);
+  }
+
+  async dropTable(table: string, options?: QueryOptions) {
+    await this.sequelize.query(
+      `DROP TABLE IF EXISTS "${table}" CASCADE;`,
+      options
+    );
   }
 }
