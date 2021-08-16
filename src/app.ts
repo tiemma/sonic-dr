@@ -1,8 +1,19 @@
-import { Options } from "sequelize";
+import { isMaster, MapReduce } from "@tiemma/sonic-distribute";
 import config from "../config.json";
-import { backup, restore } from "./strategy";
+import { strategyMap } from "./strategy";
 
 (async () => {
-  await backup(config as Options);
-  await restore();
+  const { masterFn, workerFns, reduceFn } = strategyMap.restore;
+  const data = await MapReduce(masterFn, workerFns, reduceFn, {
+    config,
+    numWorkers: 2,
+    tableSuffixes: {
+      cluster: "WHERE name LIKE 'c%'",
+    },
+  });
+
+  if (isMaster()) {
+    console.log(data);
+    process.exit(0);
+  }
 })();

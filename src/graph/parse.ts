@@ -20,7 +20,7 @@ export const getIndependentNodes = (metadata: StringArrMap) => {
   const independentNodes = new Queue();
 
   for (const [node, dependencies] of Object.entries(metadata)) {
-    if (dependencies.size === 0) {
+    if ((dependencies as any).length === 0) {
       independentNodes.enqueue(node);
     }
   }

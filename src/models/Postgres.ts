@@ -1,36 +1,40 @@
+import { appendFileSync } from "fs";
 import { Options, QueryOptions, Sequelize } from "sequelize";
 import { StringArrMap } from "../types";
-import { backupFilesDir } from "../strategy/utils";
+import { promiseExec } from "../strategy/utils";
 import { AbstractModel } from "./AbstractModel";
 
 (<any>Sequelize).postgres.DECIMAL.parse = parseFloat;
 require("pg").defaults.parseInt8 = true;
 
 export class Postgres extends AbstractModel {
-  getBackupCommand(config: Options, table: string): string {
+  async writeTableSchema(table: string) {
+    await promiseExec(this.getBackupCommand(table.toLowerCase()));
+  }
+
+  getBackupCommand(table: string): string {
     return ` 
-            PGPASSWORD=${config.password} \
-            pg_dump \
-                -h ${config.host} \
-                -d ${config.database}  \
-                -U ${config.username} \
-                -f "${backupFilesDir}/${table}.sql" \
-                -t "${table}" \
-                -O \
-                -x  \
-                -c \
-                --column-inserts \
-                --format=plain \
-                --inserts \
-                --if-exists \
-                --no-tablespaces \
-                --no-publications \
-                --no-security-labels \
-                --no-subscriptions \
-                --no-synchronized-snapshots \
-                --no-unlogged-table-data \
-                --quote-all-identifiers 
-          `;
+      PGPASSWORD=${this.config.password} \
+      pg_dump \
+          -h ${this.config.host} \
+          -d ${this.config.database}  \
+          -U ${this.config.username} \
+          -f ${this.getBackupFilePath(table)} \
+          -t "${table}" \
+          -O \
+          -x \
+          -s \
+          --format=plain \
+          --no-tablespaces \
+          --no-publications \
+          --no-security-labels \
+          --no-subscriptions \
+          --no-synchronized-snapshots \
+          --no-unlogged-table-data \
+          --quote-all-identifiers \
+          --no-comments \
+          --disable-triggers
+      `;
   }
 
   getDBInDegreeMap(): Promise<StringArrMap> {
@@ -73,10 +77,27 @@ export class Postgres extends AbstractModel {
     return this.execMapQuery(postgresTableRelationshipQuery);
   }
 
-  async dropTable(table: string, options?: QueryOptions) {
-    await this.sequelize.query(
-      `DROP TABLE IF EXISTS "${table}" CASCADE;`,
-      options
-    );
+  async formatRowInserts(table: string, querySuffix?: string) {
+    const query = `
+        SELECT t.* FROM "${table}" t
+        ${querySuffix || ""}
+    `;
+    const data = await this.sequelize.query(query, this.queryOptions());
+    for (const row of Object.values(data as any[])) {
+      appendFileSync(
+        this.getBackupFilePath(table),
+        this.generateInsertCommand(table, row)
+      );
+    }
+  }
+
+  generateInsertCommand(table: string, row: Record<string, any>): string {
+    const { columns, values } = this.cleanRowData(row);
+
+    return `INSERT INTO "public"."${table}"(${columns})  VALUES(${values});\n`;
+  }
+
+  quoteParamIfNeeded(param: string) {
+    return `"${param}"`;
   }
 }

@@ -1,8 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { promisify } from "util";
+import { exec } from "child_process";
 import { DataTypes, Sequelize } from "sequelize";
+import { getWorkerName } from "@tiemma/sonic-distribute";
 import { DBMetadataGraph } from "../types";
 import { getLogger } from "../utils";
-import { getWorkerName } from "../map_reduce";
 
 export const backupDir = `${process.cwd()}/backup`;
 export const backupFilesDir = `${backupDir}/files`;
@@ -14,9 +16,18 @@ export const createDirIfMissing = (dir: string) => {
   }
 };
 
-export const backupMetadata = (dir: string, data: DBMetadataGraph) => {
+export enum MetadataFiles {
+  METADATA_GRAPH = "metadata.json",
+  ADJACENCY_MATRIX = "adjMatrix.json",
+}
+
+export const backupMetadata = (
+  dir: string,
+  fileName: MetadataFiles,
+  data: any
+) => {
   createDirIfMissing(backupFilesDir);
-  writeFileSync(`${dir}/metadata.json`, JSON.stringify(data, null, "\t"));
+  writeFileSync(`${dir}/${fileName}`, JSON.stringify(data, null, "\t"));
 };
 
 export const getCount = (metadata: DBMetadataGraph, table: string) => {
@@ -62,7 +73,7 @@ export const ensureDependenciesSatisfied = async (
   metadata: DBMetadataGraph,
   table: string
 ) => {
-  const dependencySize = metadata.tableDependencies[table].size;
+  const dependencySize = (metadata.tableDependencies[table] as string[]).length;
   if (dependencySize === 0) {
     return;
   }
@@ -99,4 +110,8 @@ export const getMaxDependencyCount = (dependencies: string[][]) => {
 };
 
 export const readBackup = (table: string) =>
-  readFileSync(`${backupFilesDir}/${table}.sql`).toString();
+  readFileSync(`${backupFilesDir}/${table}.sql`, {
+    encoding: "utf-8",
+  }).toString();
+
+export const promiseExec = promisify(exec);
