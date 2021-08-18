@@ -1,12 +1,12 @@
 {
   "name": "sonic-dr",
   "version": "1.0.0",
+  "main": "build/index.js",
   "engines": {
     "node": "<16"
   },
   "engineStrict": true,
   "description": "Accelerate your DB backup and restore processes",
-  "main": "index.js",
   "scripts": {
     "lint-fix": "eslint -c .eslintrc.js --fix --ext .ts --ext .js src/",
     "test": "echo \"Info: no test specified\" && exit 0"

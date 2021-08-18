@@ -10,9 +10,3 @@ export const sonicDR = async (op: "backup" | "restore", args: DRArgs) => {
     return data;
   }
 };
-
-sonicDR("restore", {
-  numWorkers: 10,
-  config: require("../config.json"),
-  tableSuffixes: {},
-});
