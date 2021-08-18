@@ -1,5 +1,5 @@
 import { Options, QueryOptions, QueryTypes, Sequelize } from "sequelize";
-import { QueryData, StringArrMap } from "../types";
+import { QueryData, StringArrMap, TableConstraints } from "../types";
 import { backupFilesDir } from "../strategy";
 
 export abstract class AbstractModel {
@@ -7,23 +7,26 @@ export abstract class AbstractModel {
   config: Options;
 
   constructor(config: Options) {
-    this.config = config;
-    this.sequelize = new Sequelize({
+    this.config = {
       ...config,
       logging: false,
       benchmark: false,
-    });
+      dialectOptions: {
+        multipleStatements: true,
+      },
+    };
+    this.sequelize = new Sequelize(this.config);
 
     return this;
   }
 
-  async execMapQuery(query, bind = []): Promise<StringArrMap> {
+  async execMapQuery(query, bind = []) {
     const { data } = await this.sequelize.query<QueryData>(
       query,
       this.queryOptions({ bind, plain: true }) as any
     );
 
-    return data as StringArrMap;
+    return data as any;
   }
 
   queryOptions(args?: Record<string, any>): QueryOptions {
@@ -37,13 +40,6 @@ export abstract class AbstractModel {
 
   getBackupFilePath(table: string): string {
     return `${backupFilesDir}/${table}.sql`;
-  }
-
-  async dropTable(table: string, options?: QueryOptions) {
-    await this.sequelize.query(
-      `DROP TABLE IF EXISTS ${this.quoteParamIfNeeded(table)} CASCADE;`,
-      options
-    );
   }
 
   cleanRowData(row: any) {
@@ -69,4 +65,15 @@ export abstract class AbstractModel {
   abstract quoteParamIfNeeded(param: string): string;
 
   abstract writeTableSchema(table: string);
+
+  abstract executeBackupQuery(table: string);
+
+  abstract generateForeignKeyMap(): Promise<TableConstraints>;
+
+  abstract writeContraintQueries(
+    table: string,
+    constraintMap: TableConstraints
+  );
+
+  abstract dropTable(table: string, options?: QueryOptions);
 }

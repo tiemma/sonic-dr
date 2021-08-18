@@ -6,7 +6,7 @@ import { strategyMap } from "./strategy";
   const { masterFn, workerFns, reduceFn } = strategyMap.restore;
   const data = await MapReduce(masterFn, workerFns, reduceFn, {
     config,
-    numWorkers: 2,
+    numWorkers: 16,
     tableSuffixes: {
       cluster: "WHERE name LIKE 'c%'",
     },

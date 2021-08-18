@@ -63,31 +63,16 @@ const workerFn = async (event: MapReduceEvent, args: any) => {
   try {
     await ensureDependenciesSatisfied(metadata, table);
 
-    await dbInstance.sequelize.transaction(async (transaction) => {
-      const queryOptions: QueryOptions = {
-        transaction,
-        logging: false,
-        benchmark: false,
-        raw: true,
-      };
-      // await dbInstance.dropTable(table, queryOptions);
-      await dbInstance.sequelize.query(
-        readBackup(table).replace(/\/\*\!.*\n?/m, ""),
-        {
-          type: QueryTypes.INSERT,
-          ...queryOptions,
-        }
-      );
-      await Tables.update(
-        { isProcessed: true },
-        {
-          where: {
-            name: table,
-            isProcessed: false,
-          },
-        }
-      );
-    });
+    await dbInstance.executeBackupQuery(table);
+    await Tables.update(
+      { isProcessed: true },
+      {
+        where: {
+          name: table,
+          isProcessed: false,
+        },
+      }
+    );
   } catch (err) {
     await dbInstance.sequelize.close();
 
@@ -131,11 +116,10 @@ const masterFn = async (workerQueue: Queue, _: any) => {
 const reduceFn = (processQueue: Queue, failedQueue: Queue) => {
   rmSync(`${storageFileName}`);
 
-  return `Processed ${
-    processQueue.getElements().length
-  } tables, failed ${failedQueue
-    .getElements()
-    .map((x) => x.data.table)} tables`;
+  return `Processed ${processQueue.getElements().length} tables, failed ${
+    failedQueue.getElements().map((x) => x.data.table) ||
+    failedQueue.getElements().length
+  } tables`;
 };
 
 export const restoreOpsMap = {

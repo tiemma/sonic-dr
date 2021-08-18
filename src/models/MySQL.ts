@@ -1,9 +1,51 @@
 import { appendFileSync, writeFileSync } from "fs";
-import { StringArrMap } from "../types";
+import { QueryOptions } from "sequelize";
+import { Constraint, StringArrMap, TableConstraints } from "../types";
 import { backupFilesDir, promiseExec } from "../strategy";
 import { AbstractModel } from "./AbstractModel";
 
 export class MySQL extends AbstractModel {
+  async dropTable(table: string, options?: QueryOptions) {
+    await this.sequelize.query(
+      `
+      SET FOREIGN_KEY_CHECKS = 0;
+      DROP TABLE IF EXISTS ${this.quoteParamIfNeeded(table)} CASCADE;
+      SET FOREIGN_KEY_CHECKS = 1;
+      `,
+      options
+    );
+  }
+
+  async generateForeignKeyMap() {
+    const query = `
+      SELECT COALESCE(JSON_OBJECTAGG(TABLE_NAME, CONSTRAINTS), JSON_OBJECT()) AS data
+      FROM (
+          SELECT 
+              KEY_COLUMN_USAGE.TABLE_NAME,
+              JSON_ARRAYAGG(JSON_OBJECT('referencedTable', KEY_COLUMN_USAGE.REFERENCED_TABLE_NAME, 'columnName', COLUMN_NAME, 'referencedColumn', REFERENCED_COLUMN_NAME, 'constraintName', KEY_COLUMN_USAGE.CONSTRAINT_NAME)) AS CONSTRAINTS
+          FROM information_schema.KEY_COLUMN_USAGE, information_schema.REFERENTIAL_CONSTRAINTS, information_schema.TABLE_CONSTRAINTS
+          WHERE KEY_COLUMN_USAGE.CONSTRAINT_SCHEMA = '${this.config.database}'
+            AND KEY_COLUMN_USAGE.CONSTRAINT_NAME = REFERENTIAL_CONSTRAINTS.CONSTRAINT_NAME
+            AND KEY_COLUMN_USAGE.CONSTRAINT_SCHEMA = REFERENTIAL_CONSTRAINTS.CONSTRAINT_SCHEMA
+            AND TABLE_CONSTRAINTS.CONSTRAINT_TYPE= 'FOREIGN KEY'
+            AND TABLE_CONSTRAINTS.CONSTRAINT_NAME = KEY_COLUMN_USAGE.CONSTRAINT_NAME
+          GROUP BY KEY_COLUMN_USAGE.TABLE_NAME
+      ) d;
+    `;
+
+    return this.execMapQuery(query);
+  }
+
+  async executeBackupQuery(table: string) {
+    await this.dropTable(table);
+    const { stderr } = await promiseExec(
+      `MYSQL_PWD="${this.config.password}" mysql --database=${this.config.database} --host="${this.config.host}" --user=${this.config.username} < ${backupFilesDir}/${table}.sql`
+    );
+    if (stderr) {
+      throw stderr;
+    }
+  }
+
   async writeTableSchema(table: string) {
     const { stdout: schema, stderr } = await promiseExec(
       await this.getBackupCommand(table.toLowerCase())
@@ -19,7 +61,8 @@ export class MySQL extends AbstractModel {
 
     return `MYSQL_PWD="${this.config.password}" \
      mysqldump \
-     --add-drop-table \
+     --skip-add-drop-table \
+     --skip-comments \
      --no-data \
      --databases ${this.config.database} \
      --host ${this.config.host} \
@@ -83,7 +126,22 @@ export class MySQL extends AbstractModel {
     return `INSERT INTO ${table}(${columns}) VALUES(${values});\n`;
   }
 
+  generateAlterTableCommand(table: string, constraint: Constraint) {
+    return `ALTER TABLE ${table} ADD CONSTRAINT ${constraint.constraintName} FOREIGN KEY (${constraint.columnName}) REFERENCES ${constraint.referencedTable} (${constraint.referencedColumn}) ON DELETE CASCADE ON UPDATE CASCADE;\n`;
+  }
+
   quoteParamIfNeeded(param: string) {
     return param;
+  }
+
+  writeContraintQueries(table: string, constraintMap: TableConstraints) {
+    if (constraintMap[table]) {
+      for (const constraint of constraintMap[table]) {
+        appendFileSync(
+          this.getBackupFilePath(table),
+          this.generateAlterTableCommand(table, constraint)
+        );
+      }
+    }
   }
 }

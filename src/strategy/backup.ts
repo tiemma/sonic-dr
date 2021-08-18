@@ -9,11 +9,9 @@ import { backupDir, backupMetadata, MetadataFiles, promiseExec } from "./utils";
 const logger = getLogger("BACKUP");
 
 const reduceFn = async (queue: Queue, failed: Queue) => {
-  return `Backed up ${
-    queue.getElements().length
-  } tables and failed with tables ${failed
-    .getElements()
-    .map((x) => x.data.table)}`;
+  return `Backed up ${queue.getElements().length} tables and failed with ${
+    failed.getElements().map((x) => x.data.table) || failed.getElements().length
+  } tables`;
 };
 
 const workerFn = async (event: MapReduceEvent, args: any) => {

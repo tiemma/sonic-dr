@@ -1,13 +1,36 @@
 import { appendFileSync } from "fs";
-import { Options, QueryOptions, Sequelize } from "sequelize";
-import { StringArrMap } from "../types";
-import { promiseExec } from "../strategy/utils";
+import { Options, QueryOptions, QueryTypes, Sequelize } from "sequelize";
+import { StringArrMap, TableConstraints } from "../types";
+import { promiseExec, readBackup } from "../strategy/utils";
 import { AbstractModel } from "./AbstractModel";
 
 (<any>Sequelize).postgres.DECIMAL.parse = parseFloat;
 require("pg").defaults.parseInt8 = true;
 
 export class Postgres extends AbstractModel {
+  async dropTable(table: string, options?: QueryOptions) {
+    await this.sequelize.query(
+      `DROP TABLE IF EXISTS ${this.quoteParamIfNeeded(table)} CASCADE;`,
+      options
+    );
+  }
+
+  async executeBackupQuery(table: string) {
+    await this.sequelize.transaction(async (transaction) => {
+      const queryOptions: QueryOptions = {
+        transaction,
+        logging: true,
+        benchmark: true,
+        raw: true,
+      };
+      await this.dropTable(table, queryOptions);
+      await this.sequelize.query(readBackup(table), {
+        type: QueryTypes.INSERT,
+        ...queryOptions,
+      });
+    });
+  }
+
   async writeTableSchema(table: string) {
     await promiseExec(this.getBackupCommand(table.toLowerCase()));
   }
@@ -100,4 +123,10 @@ export class Postgres extends AbstractModel {
   quoteParamIfNeeded(param: string) {
     return `"${param}"`;
   }
+
+  generateForeignKeyMap(): Promise<TableConstraints> {
+    return Promise.resolve(undefined);
+  }
+
+  writeContraintQueries(_table: string, _constraints: TableConstraints) {}
 }
