@@ -116,10 +116,11 @@ const masterFn = async (workerQueue: Queue, _: any) => {
 const reduceFn = (processQueue: Queue, failedQueue: Queue) => {
   rmSync(`${storageFileName}`);
 
-  return `Processed ${processQueue.getElements().length} tables, failed ${
-    failedQueue.getElements().map((x) => x.data.table) ||
+  return `Processed ${
+    processQueue.getElements().length
+  } tables and failed for ${
     failedQueue.getElements().length
-  } tables`;
+  } table(s): ${failedQueue.getElements().map((x) => x.data.table)}`;
 };
 
 export const restoreOpsMap = {

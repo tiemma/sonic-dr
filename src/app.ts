@@ -3,7 +3,7 @@ import config from "../config.json";
 import { strategyMap } from "./strategy";
 
 (async () => {
-  const { masterFn, workerFns, reduceFn } = strategyMap.restore;
+  const { masterFn, workerFns, reduceFn } = strategyMap.backup;
   const data = await MapReduce(masterFn, workerFns, reduceFn, {
     config,
     numWorkers: 16,
