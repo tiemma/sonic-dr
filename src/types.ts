@@ -1,3 +1,5 @@
+import { Options } from "sequelize";
+
 export type StringArrMap = Record<string, string[] | Set<string>>;
 
 export type QueryData = Record<"data", StringArrMap | TableConstraints>;
@@ -22,3 +24,9 @@ export interface Constraint {
 }
 
 export type TableConstraints = Record<string, Constraint[]>;
+
+export interface DRArgs {
+  numWorkers: number;
+  config: Options;
+  tableSuffixes: Record<string, string>;
+}

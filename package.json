@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "lint-fix": "eslint -c .eslintrc.js --fix --ext .ts --ext .js src/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Info: no test specified\" && exit 0"
   },
   "keywords": [
     "db",
@@ -20,8 +20,8 @@
   "author": "Emmanuel Bakare",
   "license": "ISC",
   "dependencies": {
-    "@tiemma/sonic-core": "^1.0.10",
-    "@tiemma/sonic-distribute": "^1.0.1",
+    "@tiemma/sonic-core": "^1.0.12",
+    "@tiemma/sonic-distribute": "^1.0.3",
     "mysql2": "^2.2.5",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",

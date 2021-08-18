@@ -1,19 +1,18 @@
-import { isMaster, MapReduce } from "@tiemma/sonic-distribute";
-import config from "../config.json";
+import { isMaster, sonicDistribute } from "@tiemma/sonic-distribute";
 import { strategyMap } from "./strategy";
+import { DRArgs } from "./types";
 
-(async () => {
-  const { masterFn, workerFns, reduceFn } = strategyMap.backup;
-  const data = await MapReduce(masterFn, workerFns, reduceFn, {
-    config,
-    numWorkers: 16,
-    tableSuffixes: {
-      cluster: "WHERE name LIKE 'c%'",
-    },
-  });
+export const sonicDR = async (op: "backup" | "restore", args: DRArgs) => {
+  const { masterFn, workerFns, reduceFn } = strategyMap[op];
+  const data = await sonicDistribute(masterFn, workerFns, reduceFn, args);
 
   if (isMaster()) {
-    console.log(data);
-    process.exit(0);
+    return data;
   }
-})();
+};
+
+sonicDR("restore", {
+  numWorkers: 10,
+  config: require("../config.json"),
+  tableSuffixes: {},
+});

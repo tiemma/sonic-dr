@@ -17,6 +17,7 @@ const reduceFn = async (queue: Queue, failed: Queue) => {
 const workerFn = async (event: MapReduceEvent, args: any) => {
   const { table } = event.data;
   const { config, tableSuffixes } = args;
+
   const dbInstance = getDBInstance(config);
   await dbInstance.writeTableSchema(table);
   await dbInstance.formatRowInserts(table, tableSuffixes[table]);
