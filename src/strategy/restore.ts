@@ -1,11 +1,9 @@
-import { rmSync, readFileSync } from "fs";
-import { QueryOptions, QueryTypes } from "sequelize";
+import { rmSync } from "fs";
 import { Queue } from "@tiemma/sonic-core";
-import { getWorkerName, Map, MapReduceEvent } from "@tiemma/sonic-distribute";
+import { Map, MapReduceEvent } from "@tiemma/sonic-distribute";
 import { generateRestorePath, getIndependentNodes } from "../graph";
 import { Restore, Result } from "../types";
 import { getDBInstance } from "../models";
-import { Delay, getLogger } from "../utils";
 import {
   backupDir,
   backupMetadata,
@@ -13,7 +11,6 @@ import {
   getMaxDependencyCount,
   isProcessed,
   MetadataFiles,
-  readBackup,
   sequelize,
   storageFileName,
   Tables,

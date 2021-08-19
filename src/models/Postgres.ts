@@ -1,5 +1,5 @@
 import { appendFileSync } from "fs";
-import { Options, QueryOptions, QueryTypes, Sequelize } from "sequelize";
+import { QueryOptions, QueryTypes, Sequelize } from "sequelize";
 import { StringArrMap, TableConstraints } from "../types";
 import { promiseExec, readBackup } from "../strategy/utils";
 import { AbstractModel } from "./AbstractModel";
