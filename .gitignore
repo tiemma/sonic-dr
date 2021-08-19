@@ -3,3 +3,4 @@ backup/
 .idea
 config.json
 db
+build/

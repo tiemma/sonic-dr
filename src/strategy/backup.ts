@@ -4,7 +4,7 @@ import { DBMetadataGraph } from "../types";
 import { getDBInstance } from "../models";
 import { convertIntoGraphAndSort } from "../graph";
 import { getLogger } from "../utils";
-import { backupDir, backupMetadata, MetadataFiles, promiseExec } from "./utils";
+import { backupDir, backupMetadata, MetadataFiles } from "./utils";
 
 const logger = getLogger("BACKUP");
 
