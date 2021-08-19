@@ -1,5 +1,5 @@
 {
-  "name": "sonic-dr",
+  "name": "@tiemma/sonic-dr",
   "version": "1.0.0",
   "main": "build/index.js",
   "engines": {
