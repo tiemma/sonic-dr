@@ -2,14 +2,14 @@
 
 ![image](https://raw.githubusercontent.com/Tiemma/sonic-core/master/image.png) 
 
-Accelerate your DR processes on relational databases (table backup and restores)
+Accelerate your Disaster Recovery processes on relational databases (table backup and restores)
 
 ![CodeQL](https://github.com/Tiemma/sonic-dr/workflows/CodeQL/badge.svg)
 ![Node.js CI](https://github.com/Tiemma/sonic-dr/workflows/Node.js%20CI/badge.svg)
 
 # What does this do?
 
-Distributed backup and restore actions for large and mid-scale databases.
+Distributed backup and restore actions towards disaster recovery for large and mid-scale databases.
 
 Adds in flexibility for configuring what parts of your data to backup and speeds up the grossly linear process with most dump utilities (pgdump, mysqldump etc).
 
