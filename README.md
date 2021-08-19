@@ -67,13 +67,18 @@ const drArgs = {
         //...some database configuration
     },
     tableSuffixes: {
-        "user": "WHERE id = 1"
+        // all base tables are referenced by t
+        "user": "WHERE t.id = 1",
+
+        // INNER JOINS also work but only selections on the base table would be picked out e.g t.*
+        "cluster": "INNER JOIN cluster_user cu ON cu.cluster_id = t.id WHERE t.id = 1" 
     }
 };
+
 sonicDR("backup" | "restore", drArgs);
 ```
 
-This example would spin up 2 threads, backup all the data in all the tables except user which would only have entries with an id of 1.
+This example would spin up 2 worker processes, backup all the data in all the tables using the queries where sufficient for the tables described in `tableSuffixes`.
 
 All this information would be available in the `backup/files` folder.
 
@@ -121,16 +126,16 @@ This aids not only in viewing the DB relationships, but the backups can be broke
 
 2. Backup files in order and write data obtained from 1 into a metadata.json file in the root backup directory
 
-After the generation of data from 1, the map is sorted to ensure it is resolvable for integrity reasons and is written out by a normal backup processed across mapped across workers in a concurrent fashion.
+After the generation of data from 1, the map is sorted to ensure it is resolvable for integrity reasons and is written out by a normal backup, processed across mapped workers in a concurrent fashion.
 
 
 ## Restore
 
 1. Generate a dependency matrix to assist with resolving multiple table foreign key relationships
 
-This is generated using the inDegree map and sets a route from the independent nodes to the tables.
+This is generated using the inDegree map and sets a route from the independent table to the table in question with a dependency.
 
-The multiple allow us to resolve multiple foreign keys and hence the tables independently across various workers.
+The multiple rows allow us to resolve multiple foreign keys and hence the tables independently across various workers.
 
 ```text
 {
@@ -141,7 +146,7 @@ The multiple allow us to resolve multiple foreign keys and hence the tables inde
 }
 ```
 
-Like getting the height of a  tree, we process row wise with deduplication to achieve the following
+Like getting the height of a  tree, we process column wise with deduplication to achieve the following
 
 ```text
        D   \
@@ -167,7 +172,7 @@ This tool is built to aid faster logical DR operations for text based informatio
 
 Blobs and other non-textual data types are not handled, although they would be written out in utf-8 encoding, of which I cannot state the efficacy of this.
 
-I do not why this would be a thing but do consider dropping these tables, and I mean PERMANENTLY 🙂.
+I do not know why this would be a thing but do consider dropping these tables (specifically the columns), and  I mean PERMANENTLY 🙂.
 
 
 # Future Plans
@@ -189,8 +194,11 @@ As of now, the data is written out but there's no way to test if something went 
 
 So there's a need for some method to ensure the data passed out can be written back.
 
-> This is something frustrating with using the normal dump and restore tools for databases
-> Anyone who's administered a DB backup knows just how funny a backup made at an instant can't be restored due to weird SQL format reasons
+```text
+This is something frustrating with using the normal dump and restore tools for databases
+
+Anyone who's administered a DB backup knows just how funny a backup made at an instant can't be restored due to weird SQL format reasons
+```
 
 If you have an idea of how to do this or wish to contribute this, Open up a PR using the ISSUE TEMPLATE [here](./.github/ISSUE_TEMPLATE/feature_request.md)
 
