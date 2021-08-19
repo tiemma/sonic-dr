@@ -13,6 +13,7 @@ export abstract class AbstractModel {
       benchmark: false,
       dialectOptions: {
         multipleStatements: true,
+        ...config.dialectOptions,
       },
     };
     this.sequelize = new Sequelize(this.config);
